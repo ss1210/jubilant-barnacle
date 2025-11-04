@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>塩分濃度計算ツール（最小版）</title>
+  <style>
+    :root { --bg:#0b0f14; --panel:#111826; --text:#e7edf5; --muted:#9fb0c3; --accent:#57a7ff; }
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans JP,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";}
+    header{padding:20px 16px;border-bottom:1px solid #1d2636}
+    h1{font-size:20px;margin:0}
+    main{max-width:960px;margin:0 auto;padding:16px;display:grid;gap:16px}
+    .card{background:var(--panel);border:1px solid #1d2636;border-radius:12px;padding:16px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    label{font-size:13px;color:var(--muted)}
+    input[type="number"], input[type="text"]{width:100%;box-sizing:border-box;background:#0c1220;border:1px solid #22324d;color:var(--text);border-radius:10px;padding:10px 12px;font-size:15px}
+    input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{opacity:1}
+    button{background:#183150;color:#d9e7ff;border:1px solid #2b4a74;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
+    button.ghost{background:transparent;border-color:#2b3a52;color:#a9bed6}
+    .btn-row{display:flex;gap:8px;flex-wrap:wrap}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{border-bottom:1px solid #1d2636;padding:8px;text-align:left;font-size:14px}
+    th{color:var(--muted);font-weight:600}
+    .right{text-align:right}
+    .muted{color:var(--muted)}
+    .big{font-size:24px;font-weight:800}
+    .ok{color:#78e08f}
+    .warn{color:#ffd166}
+    .err{color:#ff6b6b}
+    .kbd{background:#0c1220;border:1px solid #22324d;border-bottom-width:2px;padding:2px 6px;border-radius:6px;font-family:ui-monospace,Menlo,Consolas,monospace}
+    footer{padding:16px;color:var(--muted);text-align:center}
+    @media (max-width:800px){ .row, .row-3{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>塩分濃度計算ツール（最小版）</h1>
+    <div class="muted" style="margin-top:6px">総重量・既存の塩分量・目標濃度（例：スープ0.6%／おかず0.8%）から、追加する食塩量を即時計算します。</div>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="row">
+        <div>
+          <label for="total">料理の総重量（g）</label>
+          <input id="total" type="number" inputmode="decimal" min="0" step="1" placeholder="例：1000" value="1000" />
+        </div>
+        <div>
+          <label for="target">目標塩分濃度（%）</label>
+          <input id="target" type="number" inputmode="decimal" min="0" step="0.1" placeholder="例：0.6" value="0.6" />
+          <div class="btn-row" style="margin-top:8px">
+            <button type="button" data-preset="0.6">スープ 0.6%</button>
+            <button type="button" data-preset="0.8">おかず 0.8%</button>
+            <button type="button" class="ghost" id="resetBtn">リセット</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <div>
+          <h2 style="margin:0 0 8px 0;font-size:16px">すでに入っている塩分</h2>
+          <div class="muted">各項目の「重量(g) × 塩分%」で塩分量を計算します。製品により塩分%は異なるため、ラベル表示などを確認して入力してください。</div>
+        </div>
+        <div class="right">
+          <button type="button" id="addRow">行を追加</button>
+        </div>
+      </div>
+
+      <table id="itemsTable">
+        <thead>
+          <tr>
+            <th style="width:36%">項目</th>
+            <th style="width:22%">重量 (g)</th>
+            <th style="width:22%">塩分 (%)</th>
+            <th class="right" style="width:20%">塩分量 (g)</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" class="right muted">合計塩分量</td>
+            <td class="right"><span id="sumSalt" class="big">0.0</span> g</td>
+          </tr>
+        </tfoot>
+      </table>
+      <div class="btn-row" style="margin-top:8px">
+        <button type="button" id="addSalt100">+ 食塩（100%）行を追加</button>
+        <button type="button" id="clearRows" class="ghost">行を全削除</button>
+      </div>
+    </section>
+
+    <section class="card" id="resultCard">
+      <h2 style="margin:0 0 8px 0;font-size:16px">結果</h2>
+      <div class="row">
+        <div>
+          <div class="muted">現在の塩分濃度</div>
+          <div class="big"><span id="currentPct">0.0</span>%</div>
+        </div>
+        <div>
+          <div class="muted">目標までに必要な追加食塩（100%）</div>
+          <div class="big"><span id="needSalt">0.0</span> g</div>
+        </div>
+      </div>
+      <div id="status" style="margin-top:8px" class="muted"></div>
+
+      <hr style="border:none;border-top:1px solid #1d2636;margin:16px 0">
+      <div class="row-3">
+        <div>
+          <label for="altPct">もし食塩以外（しょうゆ等）で足すなら：その塩分%（例：14）</label>
+          <input id="altPct" type="number" inputmode="decimal" min="0" step="0.1" placeholder="例：14" />
+        </div>
+        <div>
+          <label>必要量（調味料の重量 g）</label>
+          <div class="big"><span id="needAlt">—</span></div>
+        </div>
+        <div>
+          <div class="muted">※ 製品の塩分%は必ずラベル等で確認してください。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <details>
+        <summary style="cursor:pointer">計算式を表示</summary>
+        <div style="margin-top:8px" class="muted">
+          <div>・各項目の塩分量(g) = <span class="kbd">重量(g) × 塩分(%) / 100</span></div>
+          <div>・合計塩分量(g) = 各項目の塩分量の合計</div>
+          <div>・現在の塩分濃度(%) = <span class="kbd">合計塩分量 / 総重量 × 100</span></div>
+          <div>・目標濃度に必要な食塩(g) = <span class="kbd">max( 目標%/100 × 総重量 − 合計塩分量, 0 )</span></div>
+          <div>・しょうゆ等（塩分p%）で追加する必要量(g) = <span class="kbd">必要な食塩(g) ÷ (p/100)</span></div>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <div>© 2025 塩分ツール（MITライセンス想定）— シンプルな静的ページなので GitHub Pages でそのまま公開できます。</div>
+  </footer>
+
+  <script>
+    const tbody = document.getElementById('tbody');
+    const sumSaltEl = document.getElementById('sumSalt');
+    const totalEl = document.getElementById('total');
+    const targetEl = document.getElementById('target');
+    const currentPctEl = document.getElementById('currentPct');
+    const needSaltEl = document.getElementById('needSalt');
+    const statusEl = document.getElementById('status');
+    const altPctEl = document.getElementById('altPct');
+    const needAltEl = document.getElementById('needAlt');
+
+    function fmt(n){
+      if (!isFinite(n)) return '—';
+      const v = Math.round(n * 10) / 10; // 0.1g単位
+      return v.toFixed(1);
+    }
+
+    function rowTemplate(name = '', w = '', p = ''){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" placeholder="例：塩 / しょうゆ / 味噌 など" value="${name}" /></td>
+        <td><input type="number" inputmode="decimal" min="0" step="0.1" value="${w}" /></td>
+        <td><input type="number" inputmode="decimal" min="0" step="0.1" value="${p}" /></td>
+        <td class="right"><span class="saltCell">0.0</span> g</td>
+      `;
+      // 行を削除できるようダブルクリックで消す（モバイルは長押し相当）
+      tr.title = '行を削除（ダブルクリック）';
+      tr.addEventListener('dblclick', ()=>{ tr.remove(); compute(); });
+      // 入力で再計算
+      tr.querySelectorAll('input').forEach(inp=> inp.addEventListener('input', compute));
+      return tr;
+    }
+
+    function addRow(name='', w='', p=''){
+      tbody.appendChild(rowTemplate(name, w, p));
+      compute();
+    }
+
+    function compute(){
+      const rows = [...tbody.querySelectorAll('tr')];
+      let sumSalt = 0;
+      rows.forEach(tr => {
+        const [nameEl, wEl, pEl] = tr.querySelectorAll('input');
+        const w = parseFloat(wEl.value)||0; // g
+        const p = parseFloat(pEl.value)||0; // %
+        const salt = w * (p/100);
+        sumSalt += salt;
+        tr.querySelector('.saltCell').textContent = fmt(salt);
+      });
+      sumSaltEl.textContent = fmt(sumSalt);
+
+      const total = parseFloat(totalEl.value)||0;
+      const targetPct = parseFloat(targetEl.value)||0;
+      const currentPct = total > 0 ? (sumSalt / total * 100) : 0;
+      currentPctEl.textContent = fmt(currentPct);
+
+      let needSalt = 0;
+      if (total > 0){
+        const targetSalt = (targetPct/100) * total;
+        needSalt = Math.max(targetSalt - sumSalt, 0);
+      }
+      needSaltEl.textContent = fmt(needSalt);
+
+      // 状態表示
+      let msg = '';
+      if (total <= 0){
+        msg = '<span class="err">総重量を入力してください。</span>';
+      } else if (needSalt === 0 && (sumSalt / total * 100) >= (parseFloat(targetEl.value)||0)){
+        msg = '<span class="ok">目標に達しています。これ以上足すと塩辛くなります。</span>';
+      } else {
+        msg = '<span class="muted">計算は 0.1g 単位に四捨五入。加熱による水分蒸発などは考慮していません。</span>';
+      }
+      statusEl.innerHTML = msg;
+
+      // 代替調味料量
+      const altPct = parseFloat(altPctEl.value);
+      if (isFinite(altPct) && altPct > 0){
+        const needAlt = needSalt / (altPct/100);
+        needAltEl.textContent = fmt(needAlt) + ' g';
+      } else {
+        needAltEl.textContent = '—';
+      }
+    }
+
+    // 初期行
+    addRow('塩', '0', '100');
+    addRow('', '', '');
+
+    // イベント
+    document.getElementById('addRow').addEventListener('click', ()=> addRow());
+    document.getElementById('addSalt100').addEventListener('click', ()=> addRow('塩','0','100'));
+    document.getElementById('clearRows').addEventListener('click', ()=>{ tbody.innerHTML=''; compute(); });
+
+    totalEl.addEventListener('input', compute);
+    targetEl.addEventListener('input', compute);
+    altPctEl.addEventListener('input', compute);
+
+    // プリセット
+    document.querySelectorAll('button[data-preset]')
+      .forEach(btn=> btn.addEventListener('click', ()=>{ targetEl.value = btn.dataset.preset; compute(); }));
+
+    // リセット
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      totalEl.value = 1000;
+      targetEl.value = 0.6;
+      tbody.innerHTML = '';
+      addRow('塩','0','100');
+      addRow('', '', '');
+      altPctEl.value = '';
+      compute();
+    });
+
+    compute();
+  </script>
+</body>
+</html>
