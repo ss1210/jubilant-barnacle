@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>料理用塩分濃度計算ツール</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>料理用塩分濃度計算ツール</h1>
+    <p>料理の塩分管理に役立つ簡単な計算ツールです。</p>
+  </header>
+
+  <main>
+    <section class="card" id="concentration-section">
+      <h2>現在の塩分濃度を計算</h2>
+      <p>塩と材料の合計重量を入力すると塩分濃度をパーセントで表示します。</p>
+      <form id="concentration-form">
+        <label for="salt-weight">塩の量 (g)</label>
+        <input type="number" id="salt-weight" min="0" step="0.1" required />
+
+        <label for="total-weight">材料全体の重さ (g)</label>
+        <input type="number" id="total-weight" min="0" step="0.1" required />
+
+        <button type="submit">塩分濃度を計算</button>
+      </form>
+      <output id="concentration-result" aria-live="polite"></output>
+    </section>
+
+    <section class="card" id="target-section">
+      <h2>目標の塩分濃度に必要な塩の量</h2>
+      <p>目標の塩分濃度と材料の重さから、必要な塩の量を計算します。</p>
+      <form id="target-form">
+        <label for="target-percent">目標塩分濃度 (%)</label>
+        <input type="number" id="target-percent" min="0" step="0.1" required />
+
+        <label for="target-total-weight">材料全体の重さ (g)</label>
+        <input type="number" id="target-total-weight" min="0" step="0.1" required />
+
+        <button type="submit">必要な塩の量を計算</button>
+      </form>
+      <output id="target-result" aria-live="polite"></output>
+    </section>
+
+    <section class="card tips">
+      <h2>使い方のヒント</h2>
+      <ul>
+        <li>塩分濃度 (%) = 塩の量 (g) ÷ 総重量 (g) × 100</li>
+        <li>1カップの水は約240g、野菜や肉は下ごしらえ後の重量を入力すると精度が上がります。</li>
+        <li>味見をしながら調整する際の目安にもご利用ください。</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <small>© 2024 塩分濃度計算ツール</small>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
