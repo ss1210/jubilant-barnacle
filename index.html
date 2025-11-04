@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>塩分濃度計算ツール</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="page-header">
+      <h1>塩分濃度計算ツール</h1>
+      <p>
+        総重量と調味料の情報から現在の塩分濃度を算出し、目標濃度へ近づけるために追加すべき食塩量を計算します。
+      </p>
+    </header>
+
+    <main class="layout">
+      <section class="card" aria-labelledby="input-heading">
+        <h2 id="input-heading">基本情報</h2>
+        <form id="calculator-form" novalidate>
+          <div class="field-grid">
+            <label class="field">
+              <span>料理の総重量 (g)</span>
+              <input
+                type="number"
+                id="total-weight"
+                min="0"
+                step="0.1"
+                inputmode="decimal"
+                required
+                aria-describedby="total-weight-hint"
+              />
+              <small id="total-weight-hint">具材と水分を含めた全量</small>
+            </label>
+            <label class="field">
+              <span>目標塩分濃度 (%)</span>
+              <input
+                type="number"
+                id="target-percent"
+                min="0"
+                max="100"
+                step="0.1"
+                inputmode="decimal"
+                required
+              />
+              <div class="quick-buttons" role="group" aria-label="目標濃度を設定">
+                <button type="button" data-percent="0.6">スープ 0.6%</button>
+                <button type="button" data-percent="0.8">おかず 0.8%</button>
+              </div>
+            </label>
+          </div>
+
+          <div class="table-controls">
+            <p>すでに入っている調味料</p>
+            <div class="button-row">
+              <button type="button" id="add-row">行を追加</button>
+              <button type="button" id="add-salt-row">食塩 (100%) 行を追加</button>
+              <button type="button" id="reset-form" class="reset">リセット</button>
+            </div>
+            <p class="hint">行をダブルクリックすると削除できます。</p>
+          </div>
+
+          <div class="table-wrapper">
+            <table aria-label="調味料一覧">
+              <thead>
+                <tr>
+                  <th scope="col">調味料名</th>
+                  <th scope="col">使用量 (g)</th>
+                  <th scope="col">塩分 (%)</th>
+                  <th scope="col">塩分量 (g)</th>
+                </tr>
+              </thead>
+              <tbody id="seasoning-body"></tbody>
+            </table>
+          </div>
+        </form>
+      </section>
+
+      <section class="card results" aria-labelledby="result-heading">
+        <h2 id="result-heading">計算結果</h2>
+        <dl class="result-list">
+          <div>
+            <dt>合計塩分量</dt>
+            <dd><span id="total-salt">0</span> g</dd>
+          </div>
+          <div>
+            <dt>現在の塩分濃度</dt>
+            <dd><span id="current-percent">0</span> %</dd>
+          </div>
+          <div>
+            <dt>目標までに必要な食塩量</dt>
+            <dd><span id="required-salt">0</span> g</dd>
+          </div>
+        </dl>
+
+        <section class="conversion" aria-labelledby="conversion-heading">
+          <h3 id="conversion-heading">他の調味料で補う場合</h3>
+          <label class="field">
+            <span>使用する調味料の塩分濃度 (%)</span>
+            <input
+              type="number"
+              id="conversion-percent"
+              min="0"
+              max="100"
+              step="0.1"
+              inputmode="decimal"
+              value="14"
+            />
+          </label>
+          <p class="conversion-result">
+            必要量: <span id="conversion-amount">0</span> g
+          </p>
+        </section>
+
+        <section class="notes" aria-label="計算式">
+          <h3>計算式</h3>
+          <ul>
+            <li>塩分量 (g) = 重量 (g) × 塩分 (%) ÷ 100</li>
+            <li>現在の塩分濃度 (%) = 合計塩分量 ÷ 総重量 × 100</li>
+            <li>追加すべき食塩 (g) = max(目標% × 総重量 ÷ 100 − 合計塩分量, 0)</li>
+            <li>他調味料の必要量 (g) = 追加すべき食塩 ÷ (調味料の塩分% ÷ 100)</li>
+          </ul>
+        </section>
+      </section>
+    </main>
+
+    <footer class="page-footer">
+      <small>MIT License / © 2024 塩分濃度計算ツール</small>
+    </footer>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>

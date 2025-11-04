@@ -1,0 +1,322 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f6f7fb;
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --border: rgba(60, 72, 88, 0.15);
+  --text: #1f2a37;
+  --accent: #1d7aaf;
+  --accent-dark: #155b80;
+  --radius: 16px;
+  --shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111827;
+    --card-bg: rgba(17, 24, 39, 0.8);
+    --border: rgba(148, 163, 184, 0.2);
+    --text: #e2e8f0;
+    --accent: #38bdf8;
+    --accent-dark: #0ea5e9;
+    --shadow: 0 18px 36px rgba(3, 7, 18, 0.65);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(120% 120% at 50% 0%, rgba(29, 122, 175, 0.12), transparent),
+    var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 32px clamp(16px, 5vw, 48px) 48px;
+}
+
+.page-header,
+.page-footer {
+  text-align: center;
+  max-width: 960px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.page-header h1 {
+  font-size: clamp(1.8rem, 2.8vw, 2.4rem);
+  margin-bottom: 0.4rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  padding: clamp(20px, 3vw, 32px);
+  backdrop-filter: blur(12px);
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 1.3rem;
+  letter-spacing: 0.04em;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.field input {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  font-size: 1rem;
+  background-color: rgba(255, 255, 255, 0.7);
+  color: inherit;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  .field input {
+    background-color: rgba(15, 23, 42, 0.6);
+    box-shadow: inset 0 1px 2px rgba(3, 7, 18, 0.45);
+  }
+}
+
+.field small {
+  color: rgba(79, 90, 105, 0.8);
+}
+
+.quick-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.quick-buttons button,
+.button-row button {
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: white;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 10px 18px rgba(29, 122, 175, 0.25);
+}
+
+.button-row button {
+  background: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  box-shadow: none;
+  padding: 9px 18px;
+  border-radius: 12px;
+}
+
+.button-row button:hover,
+.quick-buttons button:hover {
+  transform: translateY(-1px);
+}
+
+.button-row button:active,
+.quick-buttons button:active {
+  transform: translateY(0);
+}
+
+.button-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+.button-row .reset {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: rgb(239, 68, 68);
+}
+
+.button-row .reset:hover {
+  border-color: rgb(239, 68, 68);
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(79, 90, 105, 0.75);
+}
+
+.table-wrapper {
+  margin-top: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+thead {
+  background: rgba(29, 122, 175, 0.08);
+  color: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  thead {
+    background: rgba(56, 189, 248, 0.08);
+  }
+}
+
+thead th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 600;
+}
+
+tbody td {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.seasoning-name {
+  width: 100%;
+}
+
+.seasoning-amount,
+.seasoning-percent {
+  width: 100%;
+  text-align: right;
+}
+
+.seasoning-salt-amount {
+  display: inline-block;
+  min-width: 3em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.results .result-list {
+  display: grid;
+  gap: 16px;
+  margin: 0 0 24px 0;
+}
+
+.results dt {
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: rgba(79, 90, 105, 0.9);
+}
+
+.results dd {
+  margin: 4px 0 0;
+  font-size: 1.6rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.conversion {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  margin-top: 16px;
+}
+
+.conversion-result {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 8px 0 0;
+}
+
+.notes ul {
+  padding-left: 20px;
+  margin: 12px 0 0;
+  line-height: 1.6;
+  font-size: 0.9rem;
+}
+
+.notes li + li {
+  margin-top: 6px;
+}
+
+.page-footer small {
+  font-size: 0.8rem;
+  color: rgba(79, 90, 105, 0.8);
+}
+
+input:focus,
+button:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button {
+  font-family: inherit;
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 24px 16px 40px;
+  }
+
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  thead {
+    display: none;
+  }
+
+  table,
+  tbody,
+  tr,
+  td {
+    display: block;
+    width: 100%;
+  }
+
+  tbody td {
+    border-top: none;
+    padding: 10px 0;
+  }
+
+  tbody td + td {
+    margin-top: 8px;
+  }
+
+  tr + tr {
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    margin-top: 12px;
+  }
+
+  .seasoning-salt-amount {
+    text-align: left;
+  }
+}
